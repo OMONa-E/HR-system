@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 ]
 # Apps and thirdparty
 INSTALLED_APPS += [
-    'applications.attandance',
+    'applications.attendance',
     'applications.leave_management',
     'applications.onboarding',
     'applications.reporting',
