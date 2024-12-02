@@ -45,6 +45,10 @@ INSTALLED_APPS = [
 ]
 # Apps and thirdparty
 INSTALLED_APPS += [
+    'applications.attandance',
+    'applications.leave_management',
+    'applications.onboarding',
+    'applications.reporting',
 	'rest_framework',
     'rest_framework_simplejwt',
 ]
