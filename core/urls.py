@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .auth.auth_views import PasswordResetRequestView, PasswordResetConfirmView, LogoutView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .auth.auth_views import PasswordResetRequestView, PasswordResetConfirmView, ActiveDevicesView, DeviceLogoutView, CustomTokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,14 +30,16 @@ urlpatterns = [
 # Auth URLs
 # ---------------------------------------
 urlpatterns += [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/logout/', LogoutView.as_view(), name='logout'),
+    path('api/logout/', DeviceLogoutView.as_view(), name='logout'),
+    path('api/active-devices/', ActiveDevicesView.as_view(), name='active-devices'),
+
 ]
 
 # Passwoerd Reset URLs
 # ---------------------------------------
-urlpatterns = [
+urlpatterns += [
     path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset-confirm/<str:uidb64>/<str:token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]

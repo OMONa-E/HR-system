@@ -5,25 +5,59 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from applications.onboarding.models import UserDevice
 
+# Custom Token Obtain Pair API View
+# --------------------------------------------
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            refresh = response.data.get("refresh")
+            access = response.data.get("access")
+            user = self.request.user
+            device_name = request.data.get("device_name", "Unknown Device")
 
-# Logout View
+            # Save the refresh token to UserDevice model
+            UserDevice.objects.create(
+                user=user,
+                device_name=device_name,
+                refresh_token=refresh,
+            )
+        return response
+    
+# Device Logout View
 # -------------------------------------------------
-class LogoutView(APIView):
+class DeviceLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        device_id = request.data.get("device_id")
         try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()  # Blacklist the token
-            return Response({"message": "Successfully logged out."}, status=200)
-        except Exception as e:
-            return Response({"error": "Invalid token or logout failed."}, status=400)
+            device = UserDevice.objects.get(id=device_id, user=request.user)
+            refresh_token = RefreshToken(device.refresh_token)
+            refresh_token.blacklist()  # Blacklist the token
+            device.delete()  # Remove the device record
+            return Response({"message": "Device logged out successfully."}, status=200)
+        except UserDevice.DoesNotExist:
+            return Response({"error": "Device not found."}, status=404)
 
+# Active Device View
+# -------------------------------------------------
+class ActiveDevicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        devices = UserDevice.objects.filter(user=request.user)
+        return Response(
+            [{"id": device.id, "device_name": device.device_name, "created_at": device.created_at} for device in devices],
+            status=status.HTTP_200_OK
+        )
+    
 # Password Reset Request View
 # -------------------------------------------------
 class PasswordResetRequestView(APIView):
