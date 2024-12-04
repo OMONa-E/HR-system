@@ -1,4 +1,6 @@
 from django.shortcuts import get_list_or_404, get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from core.auth.permissions import IsAdmin, IsManager
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,11 +12,17 @@ from .serializers import LeaveRequestSerializer
 # ------------------------------------------------------ 
 class LeaveRequestListView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         leaves = get_list_or_404(LeaveRequest)
         serializer = LeaveRequestSerializer(leaves, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         serializer = LeaveRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -30,12 +38,18 @@ class LeaveRequestDetailView(APIView):
     
     # Retrieve a single object by pk
     def get(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         leave = self.get_object_helper(pk)        
         serializer = LeaveRequestSerializer(leave)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
     def put(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         leave = self.get_object_helper(pk)        
         serializer = LeaveRequestSerializer(leave, data=request.data, partial=True)
         if serializer.is_valid():
@@ -45,6 +59,9 @@ class LeaveRequestDetailView(APIView):
     
     # Delete a single object by pk
     def delete(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin]
+        self.check_permissions(request)
+
         leave = self.get_object_helper(pk)
         leave.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

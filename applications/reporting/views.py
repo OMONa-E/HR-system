@@ -1,10 +1,11 @@
 import csv
 from io import BytesIO
-from datetime import timedelta
 import matplotlib.pyplot as plt
 import numpy as np
 from django.http import HttpResponse
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_list_or_404
+from rest_framework.permissions import IsAuthenticated
+from core.auth.permissions import IsAdmin, IsManager
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,6 +19,9 @@ from applications.leave_management.models import LeaveRequest
 # -------------------------------------------------------------
 class EmployeeReportView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         employees = get_list_or_404(Employee.objects.all().values('employee_id', 'employee_nin', 'full_name', 'email', 'job_title', 'phone_number', 'date_joined'))
         return Response(employees, status=status.HTTP_200_OK)
     
@@ -25,6 +29,9 @@ class EmployeeReportView(APIView):
 # -------------------------------------------------------------
 class AttendanceReportView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         logs = get_list_or_404(Attendance)
         log_data = [
             {
@@ -40,6 +47,9 @@ class AttendanceReportView(APIView):
 # -------------------------------------------------------------
 class LeaveReportView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         leaves = get_list_or_404(LeaveRequest.objects.all().values('employee__full_name', 'start_date', 'end_date', 'reason', 'status'))
         return Response(leaves, status=status.HTTP_200_OK)
     
@@ -47,6 +57,9 @@ class LeaveReportView(APIView):
 # -------------------------------------------------------------
 class ExportEmployeeDataAsCSV(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         # Create the HttResponse object with CSV headers
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="employees.csv"'
@@ -63,6 +76,9 @@ class ExportEmployeeDataAsCSV(APIView):
 # -------------------------------------------------------------   
 class AttendanceFrequencyGraphView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         # Calculate attendance frequency
         employees = Attendance.objects.values_list('employee__full_name', flat=True).distinct()
         frequencies = [ Attendance.objects.filter(employee__full_name=name).count() for name in employees ]
@@ -87,6 +103,9 @@ class AttendanceFrequencyGraphView(APIView):
 # -------------------------------------------------------------   
 class LeaveStatusGraphView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+        
         # Calculate leave request status distribution        
         labels = ['Pending', 'Approved', 'Rejected']
         statuses = LeaveRequest.objects.values_list('status', flat=True)

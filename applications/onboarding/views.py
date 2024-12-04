@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.permissions import IsAuthenticated
-from core.auth.permissions import IsAdmin, IsEmployee, IsManager
+from core.auth.permissions import IsAdmin, IsManager
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
-from .models import Employee, Profile
+from .models import Employee
 from .serializers import EmployeeSerializer, UserSerializer
 
 
@@ -13,11 +13,17 @@ from .serializers import EmployeeSerializer, UserSerializer
 # --------------------------------------------
 class UserListView(APIView):
     def get(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -33,12 +39,18 @@ class UserDetailView(APIView):
     
     # Retrieve a single object by pk
     def get(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         user = self.get_object_helper(pk)        
         serializer = UserWarning(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
     def put(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         user = self.get_object_helper(pk)        
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
@@ -48,6 +60,9 @@ class UserDetailView(APIView):
     
     # Delete a single object by pk
     def delete(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin]
+        self.check_permissions(request)
+
         user = self.get_object_helper(pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -56,12 +71,17 @@ class UserDetailView(APIView):
 # --------------------------------------------
 class EmployeeListView(APIView):
     def get(self, request):
-        self.check_permissions(request) # Permission check for GET for Authenticated users only
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         employees = get_list_or_404(Employee)
         serializer = EmployeeSerializer(employees, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         serializer = EmployeeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -78,12 +98,18 @@ class EmployeeDetailView(APIView):
 
     # Retrieve a single object by pk
     def get(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         employee = self.get_object_helper(pk)        
         serializer = EmployeeSerializer(employee)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
     def put(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
+        self.check_permissions(request)
+
         employee = self.get_object_helper(pk)        
         serializer = EmployeeSerializer(employee, data=request.data)
         if serializer.is_valid():
@@ -93,6 +119,9 @@ class EmployeeDetailView(APIView):
     
     # Delete a single object by pk
     def delete(self, request, pk):
+        self.permission_classes = [IsAuthenticated, IsAdmin]
+        self.check_permissions(request)
+
         employee = self.get_object_helper(pk)
         employee.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
