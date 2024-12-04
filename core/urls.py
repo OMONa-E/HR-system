@@ -32,7 +32,7 @@ urlpatterns = [
 urlpatterns += [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('api/logout/', LogoutView.as_view(), name='logout'),
 ]
 
 # Passwoerd Reset URLs
