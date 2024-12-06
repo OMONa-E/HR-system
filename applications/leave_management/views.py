@@ -37,6 +37,8 @@ class LeaveRequestListView(APIView):
                 - HTTP 201: The created leave request.
                 - HTTP 400: Validation errors.
     """
+    serializer_class = LeaveRequestSerializer
+    
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         """
@@ -104,6 +106,8 @@ class LeaveRequestDetailView(APIView):
                 - HTTP 204: No content, leave request successfully deleted.
                 - HTTP 404: If the leave request does not exist.
     """
+    serializer_class = LeaveRequestSerializer
+
     def get_object_helper(self, pk):
         """
         Helper method to retrieve a leave request object by primary key.

@@ -36,6 +36,8 @@ class AttendanceLogListView(APIView):
                 - HTTP 201: The created attendance log.
                 - HTTP 400: Validation errors.
     """
+    serializer_class = AttendanceSerializer
+
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         """
@@ -103,6 +105,8 @@ class AttendanceLogDetailView(APIView):
                 - HTTP 204: No content, log successfully deleted.
                 - HTTP 404: If the log does not exist.
     """
+    serializer_class = AttendanceSerializer
+    
     def get_object_helper(self, pk):
         """
         Helper method to retrieve an attendance log object by primary key.

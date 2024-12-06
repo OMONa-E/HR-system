@@ -36,6 +36,8 @@ class UserListView(APIView):
                 - HTTP 201: The created user account.
                 - HTTP 400: Validation errors.
     """
+    serializer_class = UserSerializer
+
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         """
@@ -100,6 +102,8 @@ class UserDetailView(APIView):
                 - HTTP 204: No content, user successfully deleted.
                 - HTTP 404: If the user does not exist.
     """
+    serializer_class = UserSerializer
+
     def get_object_helper(self, pk):
         """
         Helper method to retrieve a user account object by primary key.
@@ -194,6 +198,8 @@ class EmployeeListView(APIView):
                 - HTTP 201: The created employee record.
                 - HTTP 400: Validation errors.
     """
+    serializer_class = EmployeeSerializer
+
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         """
@@ -254,6 +260,8 @@ class EmployeeDetailView(APIView):
                 - HTTP 204: No content, employee successfully deleted.
                 - HTTP 404: If the employee does not exist.
     """
+    serializer_class = EmployeeSerializer
+    
     def get_object_helper(self, pk):
         """
         Retrieve an employee record by primary key.

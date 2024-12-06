@@ -14,8 +14,7 @@ from applications.attendance.models import Attendance
 from applications.leave_management.models import LeaveRequest
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import permission_classes
-
-
+from drf_spectacular.utils import extend_schema
 
 # Employee Report View
 # -------------------------------------------------------------
@@ -130,6 +129,10 @@ class ExportEmployeeDataAsCSV(APIView):
                 - HTTP 200: A downloadable CSV file.
                 - HTTP 404: If no employees exist.
     """
+    @extend_schema(
+        responses={200: "text/csv"},
+        description="Returns a CSV file containing employee data.",
+    )
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         # Create the HttResponse object with CSV headers
