@@ -53,6 +53,7 @@ INSTALLED_APPS += [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'pytest_django',
+    'drf_spectacular',
 ]
 
 REST_FRAMEWORK = {
@@ -62,7 +63,30 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'HR Management System API',
+    'DESCRIPTION': """
+Core Features:
+1. User Management: CRUD-L for users with roles like Admin, Manager, and Employee.
+2. Authentication: Secure login, logout, and multi-device support.
+3. Employee Onboarding: Adding and managing employee profiles.
+4. Attendance Tracking: Clock-in/out and attendance reports.
+5. Leave Management: Request and approve/reject leaves.
+6. Reporting: Generate insights and export data.
+
+Tech Stack:
+- Backend: Django, Django REST Framework.
+- Database: PostgreSQL.
+- Authentication: JWT with djangorestframework-simplejwt.
+""",
+    'VERSION': 'v1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'CONTACT': {'name': 'coNET', 'email': 'devopsconet@gmail.com'},
+    'LICENCE': {'name': 'MIT-Licence'}
 }
 
 SIMPLE_JWT = {
