@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
+from django.utils.decorators import method_decorator
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 from core.auth.permissions import IsAdmin, IsManager
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,18 +14,14 @@ from .serializers import EmployeeSerializer, UserSerializer
 # User List API View
 # --------------------------------------------
 class UserListView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def post(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

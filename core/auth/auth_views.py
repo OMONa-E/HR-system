@@ -10,25 +10,36 @@ from rest_framework import status
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from applications.onboarding.models import UserDevice
+from .token_serializer import CustomTokenObtainPairSerializer
 
 # Custom Token Obtain Pair API View
 # --------------------------------------------
 class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 200:
-            refresh = response.data.get("refresh")
-            access = response.data.get("access")
-            user = self.request.user
-            device_name = request.data.get("device_name", "Unknown Device")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Retrieve the authenticated user
+        user = serializer.user
 
-            # Save the refresh token to UserDevice model
-            UserDevice.objects.create(
-                user=user,
-                device_name=device_name,
-                refresh_token=refresh,
-            )
-        return response
+        # Ensure the user is active and allowed to log in
+        if not user.is_active:
+            return Response({"error": "User account is inactive."}, status=403)
+
+        # Generate tokens
+        tokens = serializer.validated_data
+
+        # Add the refresh token to UserDevice
+        refresh = tokens.get("refresh")
+        device_name = request.data.get("device_name", "Unknown Device")
+        UserDevice.objects.create(
+            user=user,
+            device_name=device_name,
+            refresh_token=refresh,
+        )
+        return Response(tokens, status=status.HTTP_200_OK)
     
 # Device Logout View
 # -------------------------------------------------

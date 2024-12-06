@@ -23,10 +23,15 @@ class UserSerializer(serializers.ModelSerializer):
         profile_data = validated_data.pop('profile')
         password = validated_data.pop('password')
         user = User(**validated_data)
-        user.set_password(password) # Hash and update the password
+        user.set_password(password)
         user.save()
-        Profile.objects.update_or_create(user=user, **profile_data)
+        # Ensure only one Profile is created or updated for the User
+        profile, created = Profile.objects.get_or_create(user=user)
+        for attr, value in profile_data.items():
+            setattr(profile, attr, value)
+        profile.save()
         return user
+
     
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
