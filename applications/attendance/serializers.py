@@ -4,6 +4,22 @@ from .models import Attendance
 # Attendance Serializer
 # --------------------------------------------------------
 class AttendanceSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Attendance model.
+
+    This serializer is responsible for serializing and deserializing Attendance 
+    model instances, including fields such as employee, clock-in time, clock-out time, and 
+    duration. The duration field is read-only and automatically calculated. 
+    The employee field is a foriegn key
+
+    Fields:
+        id (int): Unique identifier for the attendance record.
+        employee (int): Foreign key reference to the Employee model.
+        clock_in_time (datetime): The date - time when the employee clocks in.
+        clock_out_time (datetime): The date - time when the employee clocks out.
+        duration (timedelta): Read-only field representing the duration 
+                              between clock-in and clock-out times.
+    """
     class Meta:
         model = Attendance
         fields = [ 'id', 'employee', 'clock_in_time', 'clock_out_time', 'duration' ]

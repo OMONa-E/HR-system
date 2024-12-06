@@ -15,6 +15,30 @@ from .token_serializer import CustomTokenObtainPairSerializer
 # Custom Token Obtain Pair API View
 # --------------------------------------------
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom API view for obtaining JWT tokens with additional functionality.
+
+    This view allows authenticated users to obtain access and refresh tokens. 
+    Additionally, it validates user account status and stores refresh tokens in 
+    the `UserDevice` model for device tracking.
+
+    Attributes:
+        serializer_class: Specifies the serializer used to validate user credentials 
+                          and generate tokens.
+
+    Methods:
+        post(request, *args, **kwargs):
+            Authenticates the user, ensures their account is active, and generates tokens.
+            Also logs the refresh token in the `UserDevice` model.
+
+    Permissions:
+        No explicit permissions are required for this endpoint.
+
+    Returns:
+        Response: 
+            - HTTP 200: Tokens successfully generated.
+            - HTTP 403: If the user account is inactive.
+    """
     serializer_class = CustomTokenObtainPairSerializer
     
     def post(self, request, *args, **kwargs):
@@ -44,6 +68,30 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # Device Logout View
 # -------------------------------------------------
 class DeviceLogoutView(APIView):
+    """
+    API view for logging out a specific device.
+
+    This view allows authenticated users to log out of a specific device by 
+    blacklisting its refresh token and deleting the corresponding record from 
+    the `UserDevice` model.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+
+    Methods:
+        post(request):
+            Logs out a specific device by ID, blacklists its refresh token, 
+            and removes the device record.
+
+    Args:
+        request.data:
+            - device_id (int): The ID of the device to log out.
+
+    Returns:
+        Response:
+            - HTTP 200: Device successfully logged out.
+            - HTTP 404: Device not found.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -60,6 +108,26 @@ class DeviceLogoutView(APIView):
 # Active Device View
 # -------------------------------------------------
 class ActiveDevicesView(APIView):
+    """
+    API view for retrieving a list of active devices.
+
+    This view allows authenticated users to retrieve all devices associated 
+    with their account that are actively storing refresh tokens.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+
+    Methods:
+        get(request):
+            Retrieves a list of active devices for the authenticated user.
+
+    Returns:
+        Response:
+            - HTTP 200: A list of active devices including:
+                - id (int): Device ID.
+                - device_name (str): Name of the device.
+                - created_at (datetime): Timestamp of when the device was added.
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -72,6 +140,25 @@ class ActiveDevicesView(APIView):
 # Password Reset Request View
 # -------------------------------------------------
 class PasswordResetRequestView(APIView):
+    """
+    API view for requesting a password reset.
+
+    This view allows users to request a password reset by providing their email 
+    address. A password reset link is sent to the user's email if the account exists.
+
+    Methods:
+        post(request):
+            Generates a password reset token and sends a reset link via email.
+
+    Args:
+        request.data:
+            - email (str): The email address of the user requesting a password reset.
+
+    Returns:
+        Response:
+            - HTTP 200: Password reset email sent.
+            - HTTP 404: If the email does not correspond to any user.
+    """
     def post(self, request):
         email = request.data.get('email')
         try:
@@ -94,6 +181,27 @@ class PasswordResetRequestView(APIView):
 # Password Reset Confirm View
 # -------------------------------------------------
 class PasswordResetConfirmView(APIView):
+    """
+    API view for confirming a password reset request.
+
+    This view validates the password reset token and updates the user's password 
+    if the token is valid and not expired.
+
+    Methods:
+        post(request, uidb64, token):
+            Validates the token and resets the user's password.
+
+    Args:
+        uidb64 (str): Base64 encoded user ID.
+        token (str): Password reset token.
+        request.data:
+            - password (str): The new password to set for the user.
+
+    Returns:
+        Response:
+            - HTTP 200: Password successfully reset.
+            - HTTP 400: If the token is invalid, expired, or the request is malformed.
+    """
     def post(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))

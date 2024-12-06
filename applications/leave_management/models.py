@@ -5,6 +5,23 @@ from applications.onboarding.models import Employee
 # Leave Request Model
 # ---------------------------------------
 class LeaveRequest(models.Model):
+    """
+    Represents an employee's leave request.
+
+    Attributes:
+        employee (ForeignKey): Reference to the Employee model, indicating which employee made the leave request.
+        start_date (DateField): The start date of the leave.
+        end_date (DateField): The end date of the leave.
+        reason (TextField): The reason for requesting leave.
+        status (CharField): The status of the leave request, with choices:
+            - 'Pending' (default): Leave request is awaiting review.
+            - 'Approved': Leave request has been approved.
+            - 'Rejected': Leave request has been rejected.
+        created_at (DateTimeField): Timestamp indicating when the leave request was created.
+
+    Methods:
+        __str__(): Returns a string representation of the leave request, including the employee's name and the request status.
+    """
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),

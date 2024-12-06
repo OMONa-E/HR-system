@@ -20,6 +20,27 @@ from rest_framework.decorators import permission_classes
 # Employee Report View
 # -------------------------------------------------------------
 class EmployeeReportView(APIView):
+    """
+    API view for retrieving a report of all employees.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Retrieve a list of all employees with limited fields for reporting.
+            Returns:
+                - HTTP 200: List of serialized employee data including:
+                    - employee_id
+                    - employee_nin
+                    - full_name
+                    - email
+                    - job_title
+                    - phone_number
+                    - date_joined
+                - HTTP 404: If no employees exist.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         employees = get_list_or_404(Employee.objects.all().values('employee_id', 'employee_nin', 'full_name', 'email', 'job_title', 'phone_number', 'date_joined'))
@@ -28,6 +49,25 @@ class EmployeeReportView(APIView):
 # Attendance Report View
 # -------------------------------------------------------------
 class AttendanceReportView(APIView):
+    """
+    API view for retrieving an attendance report.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Retrieve a list of all attendance logs, including:
+                - employee_name: Name of the employee.
+                - clock_in_time: The clock-in time of the employee.
+                - clock_out_time: The clock-out time of the employee.
+                - duration: Time difference between clock-in and clock-out.
+            If the clock-out time is not set, the duration will be 'Empty'.
+            Returns:
+                - HTTP 200: List of attendance logs.
+                - HTTP 404: If no attendance logs exist.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         logs = get_list_or_404(Attendance)
@@ -44,6 +84,25 @@ class AttendanceReportView(APIView):
 # Leave Report View
 # -------------------------------------------------------------
 class LeaveReportView(APIView):
+    """
+    API view for retrieving a leave report.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Retrieve a list of leave requests with limited fields, including:
+                - employee__full_name: The full name of the employee.
+                - start_date: The start date of the leave.
+                - end_date: The end date of the leave.
+                - reason: The reason for the leave.
+                - status: The status of the leave request ('Pending', 'Approved', 'Rejected').
+            Returns:
+                - HTTP 200: List of leave requests.
+                - HTTP 404: If no leave requests exist.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         leaves = get_list_or_404(LeaveRequest.objects.all().values('employee__full_name', 'start_date', 'end_date', 'reason', 'status'))
@@ -52,6 +111,25 @@ class LeaveReportView(APIView):
 # Export Employee As CSV View
 # -------------------------------------------------------------
 class ExportEmployeeDataAsCSV(APIView):
+    """
+    API view for exporting employee data as a CSV file.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Generate and return a CSV file containing employee data with the following fields:
+                - Employee ID
+                - Full Name
+                - Email
+                - Job Title
+                - Date Joined
+            Returns:
+                - HTTP 200: A downloadable CSV file.
+                - HTTP 404: If no employees exist.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         # Create the HttResponse object with CSV headers
@@ -69,6 +147,23 @@ class ExportEmployeeDataAsCSV(APIView):
 # Attendance Frequency Graph View
 # -------------------------------------------------------------   
 class AttendanceFrequencyGraphView(APIView):
+    """
+    API view for generating a bar graph of employee attendance frequency.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Calculate attendance frequency for each employee and generate a bar graph.
+            The graph includes:
+                - X-axis: Employee full names.
+                - Y-axis: Attendance count.
+            Returns:
+                - HTTP 200: A PNG image of the bar graph.
+                - HTTP 404: If no attendance records exist.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         # Calculate attendance frequency
@@ -94,6 +189,22 @@ class AttendanceFrequencyGraphView(APIView):
 # Leave Status Graph View
 # -------------------------------------------------------------   
 class LeaveStatusGraphView(APIView):
+    """
+    API view for generating a pie chart of leave request statuses.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated).
+        - Admin and Manager roles are required.
+
+    Methods:
+        get(request):
+            Calculate the distribution of leave request statuses ('Pending', 'Approved', 'Rejected') 
+            and generate a pie chart.
+            Returns:
+                - HTTP 200: A PNG image of the pie chart.
+                - HTTP 400: If there is invalid or insufficient data for the chart.
+                - HTTP 500: If an error occurs during graph generation.
+    """
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         # Calculate leave request status distribution        

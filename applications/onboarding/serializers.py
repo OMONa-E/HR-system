@@ -54,6 +54,25 @@ class UserSerializer(serializers.ModelSerializer):
 # Employee Serializers
 # -------------------------------------------------------
 class EmployeeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Employee model.
+
+    This serializer handles the serialization and deserialization of Employee 
+    model instances, enabling easy conversion between complex data types 
+    (e.g., querysets) and JSON for API responses.
+
+    Meta:
+        model (Employee): The model being serialized.
+        fields ('__all__'): Includes all fields from the Employee model:
+            - employee_id: Unique identifier for the employee (e.g., social security number).
+            - employee_nin: National identity number of the employee.
+            - full_name: Full name of the employee.
+            - email: Email address of the employee.
+            - job_title: Job title of the employee.
+            - phone_number: Contact phone number of the employee.
+            - date_joined: Date when the employee joined the organization.
+            - date_created: Timestamp indicating when the employee record was created.
+    """
     class Meta:
         model = Employee
         fields = "__all__"
