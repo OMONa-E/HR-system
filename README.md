@@ -77,5 +77,6 @@ Managing HR processes like employee onboarding, attendance, leave management, an
 - Integrate with a frontend framework like React or Vue.js.
 - Add payroll management.
 - Build detailed analytics.
-- Use of Docker and Kubernator
-- Use of Microservices Sytem Design Principle
+- Deploy to cloud services
+- Use of Docker and Kubernator.
+- Use of Microservices Sytem Design Principle.
