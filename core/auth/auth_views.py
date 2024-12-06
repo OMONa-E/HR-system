@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import status
+from rest_framework import status, serializers
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from applications.onboarding.models import UserDevice
@@ -180,6 +180,9 @@ class PasswordResetRequestView(APIView):
 
 # Password Reset Confirm View
 # -------------------------------------------------
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
 class PasswordResetConfirmView(APIView):
     """
     API view for confirming a password reset request.
@@ -202,6 +205,8 @@ class PasswordResetConfirmView(APIView):
             - HTTP 200: Password successfully reset.
             - HTTP 400: If the token is invalid, expired, or the request is malformed.
     """
+    serializer_class = PasswordResetRequestSerializer
+    
     def post(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))

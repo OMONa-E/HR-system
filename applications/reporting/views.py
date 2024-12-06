@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_list_or_404
 from rest_framework.permissions import IsAuthenticated
 from core.auth.permissions import IsAdmin, IsManager
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from applications.onboarding.models import Employee
@@ -47,6 +47,12 @@ class EmployeeReportView(APIView):
     
 # Attendance Report View
 # -------------------------------------------------------------
+class AttendanceReportSerializer(serializers.Serializer):
+    employee_name = serializers.CharField()
+    clock_in_time = serializers.DateTimeField()
+    clock_out_time = serializers.DateTimeField(allow_null=True)
+    duration = serializers.CharField()
+
 class AttendanceReportView(APIView):
     """
     API view for retrieving an attendance report.
@@ -67,6 +73,8 @@ class AttendanceReportView(APIView):
                 - HTTP 200: List of attendance logs.
                 - HTTP 404: If no attendance logs exist.
     """
+    serializer_class = AttendanceReportSerializer
+
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         logs = get_list_or_404(Attendance)
@@ -78,10 +86,25 @@ class AttendanceReportView(APIView):
                 'duration': log.duration if log.clock_out_time else 'Empty',
             } for log in logs
         ]
-        return Response(log_data, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(data=log_data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 # Leave Report View
 # -------------------------------------------------------------
+class LeaveRequestSerializer(serializers.Serializer): 
+    employee_name = serializers.CharField() 
+    start_date = serializers.DateField() 
+    end_date = serializers.DateField() 
+    reason = serializers.CharField() 
+    status = serializers.CharField() 
+    created_at = serializers.DateTimeField() 
+
+    def validate(self, data): 
+        if data['start_date'] > data['end_date']: 
+            raise serializers.ValidationError("End date must be after start date.") 
+        return data
+
 class LeaveReportView(APIView):
     """
     API view for retrieving a leave report.
@@ -102,6 +125,8 @@ class LeaveReportView(APIView):
                 - HTTP 200: List of leave requests.
                 - HTTP 404: If no leave requests exist.
     """
+    serializer_class = LeaveRequestSerializer
+    
     @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
         leaves = get_list_or_404(LeaveRequest.objects.all().values('employee__full_name', 'start_date', 'end_date', 'reason', 'status'))
