@@ -12,26 +12,24 @@ from rest_framework.response import Response
 from applications.onboarding.models import Employee
 from applications.attendance.models import Attendance
 from applications.leave_management.models import LeaveRequest
+from django.utils.decorators import method_decorator
+from rest_framework.decorators import permission_classes
 
 
 
 # Employee Report View
 # -------------------------------------------------------------
 class EmployeeReportView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         employees = get_list_or_404(Employee.objects.all().values('employee_id', 'employee_nin', 'full_name', 'email', 'job_title', 'phone_number', 'date_joined'))
         return Response(employees, status=status.HTTP_200_OK)
     
 # Attendance Report View
 # -------------------------------------------------------------
 class AttendanceReportView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         logs = get_list_or_404(Attendance)
         log_data = [
             {
@@ -46,20 +44,16 @@ class AttendanceReportView(APIView):
 # Leave Report View
 # -------------------------------------------------------------
 class LeaveReportView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         leaves = get_list_or_404(LeaveRequest.objects.all().values('employee__full_name', 'start_date', 'end_date', 'reason', 'status'))
         return Response(leaves, status=status.HTTP_200_OK)
     
 # Export Employee As CSV View
 # -------------------------------------------------------------
 class ExportEmployeeDataAsCSV(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         # Create the HttResponse object with CSV headers
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="employees.csv"'
@@ -75,10 +69,8 @@ class ExportEmployeeDataAsCSV(APIView):
 # Attendance Frequency Graph View
 # -------------------------------------------------------------   
 class AttendanceFrequencyGraphView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         # Calculate attendance frequency
         employees = Attendance.objects.values_list('employee__full_name', flat=True).distinct()
         frequencies = [ Attendance.objects.filter(employee__full_name=name).count() for name in employees ]
@@ -102,10 +94,8 @@ class AttendanceFrequencyGraphView(APIView):
 # Leave Status Graph View
 # -------------------------------------------------------------   
 class LeaveStatusGraphView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-        
         # Calculate leave request status distribution        
         labels = ['Pending', 'Approved', 'Rejected']
         statuses = LeaveRequest.objects.values_list('status', flat=True)

@@ -36,19 +36,15 @@ class UserDetailView(APIView):
         return get_object_or_404(User, pk=pk)
     
     # Retrieve a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         user = self.get_object_helper(pk)        
         serializer = UserWarning(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def put(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         user = self.get_object_helper(pk)        
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
@@ -57,10 +53,8 @@ class UserDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # Delete a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin]))
     def delete(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin]
-        self.check_permissions(request)
-
         user = self.get_object_helper(pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -68,18 +62,14 @@ class UserDetailView(APIView):
 # Employee List API View
 # --------------------------------------------
 class EmployeeListView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         employees = get_list_or_404(Employee)
         serializer = EmployeeSerializer(employees, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def post(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         serializer = EmployeeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -95,19 +85,15 @@ class EmployeeDetailView(APIView):
         return get_object_or_404(Employee, pk=pk)
 
     # Retrieve a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         employee = self.get_object_helper(pk)        
         serializer = EmployeeSerializer(employee)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def put(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         employee = self.get_object_helper(pk)        
         serializer = EmployeeSerializer(employee, data=request.data)
         if serializer.is_valid():
@@ -116,10 +102,8 @@ class EmployeeDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # Delete a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def delete(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin]
-        self.check_permissions(request)
-
         employee = self.get_object_helper(pk)
         employee.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

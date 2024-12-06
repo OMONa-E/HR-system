@@ -6,23 +6,21 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import LeaveRequest
 from .serializers import LeaveRequestSerializer
+from django.utils.decorators import method_decorator
+from rest_framework.decorators import permission_classes
 
 
 # Leave Request List
 # ------------------------------------------------------ 
 class LeaveRequestListView(APIView):
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         leaves = get_list_or_404(LeaveRequest)
         serializer = LeaveRequestSerializer(leaves, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def post(self, request):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         serializer = LeaveRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -37,19 +35,15 @@ class LeaveRequestDetailView(APIView):
         return get_object_or_404(LeaveRequest, pk=pk)
     
     # Retrieve a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def get(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         leave = self.get_object_helper(pk)        
         serializer = LeaveRequestSerializer(leave)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Update a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin, IsManager]))
     def put(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin, IsManager]
-        self.check_permissions(request)
-
         leave = self.get_object_helper(pk)        
         serializer = LeaveRequestSerializer(leave, data=request.data, partial=True)
         if serializer.is_valid():
@@ -58,10 +52,8 @@ class LeaveRequestDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # Delete a single object by pk
+    @method_decorator(permission_classes([IsAuthenticated, IsAdmin]))
     def delete(self, request, pk):
-        self.permission_classes = [IsAuthenticated, IsAdmin]
-        self.check_permissions(request)
-
         leave = self.get_object_helper(pk)
         leave.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
